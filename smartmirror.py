@@ -19,7 +19,7 @@ from PIL import Image, ImageTk
 from contextlib import contextmanager
 from facematch.FaceMatch import FaceMatch
 from contextlib import contextmanager #check http://preshing.com/20110920/the-python-with-statement-by-example/
-
+from serial import SerialException
 LOCALE_LOCK = threading.Lock()
 
 ui_locale = "en_US.utf8" # e.g. 'fr_FR' fro French, '' as default
@@ -41,20 +41,26 @@ serial_port = '/dev/rfcomm0'
 
 
 #####Bluetooth-Serial connection check
+send = 1
 try:
     ser = serial.Serial(serial_port, serial_speed, timeout=1)
 except serial.SerialException:
-    print "No connection to the device could be established"
+    print "No connection to the bluetooth device could be established"
+    ser = 0
+    send = 0
 
 #CAMERA CHECK#
 ##############
 camera = subprocess.check_output(["vcgencmd","get_camera"])
-int(camdet.strip()[-1]) #gets only 0 or 1 from detected status
-if (camera):
+#int(camera.strip()[-1]) #gets only 0 or 1 from detected status
+section = camera.split(" ")[1]
+detector = section.split("=")[-1]
+print detector
+if (int(detector)==1):
     print "Camera Detected"
     print camera
 else:
-    print "not detected"
+    print "Camera not detected"
     print camera
 
 #@contextmanager
@@ -296,13 +302,13 @@ class FaceRec(Frame):
 	self.pack()
 	self.measure()
     def measure(self):
-        if (camera==1):
+        if (int(detector)==1):
             fm=FaceMatch("test")
             name=fm.getName()
         else:
             name=("camera not connected")
-	    self.name.set("Hello " + name)
-	    self.temperature.pack(side=LEFT, anchor=W)
+	self.name.set("Hello " + name)
+	self.temperature.pack(side=LEFT, anchor=W)
 	# Create display elements
     def createWidgets(self):
 
@@ -317,7 +323,8 @@ class TempTest(Frame):
 	self.hum_data = StringVar()
 	self.createWidgets()
 	self.pack()
-	self.measure()
+        if(int(send)==1):
+	   self.measure()
     def measure(self):
 
 		# Request data and read the answer
@@ -426,8 +433,8 @@ class FullscreenWindow:
         # news
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=10, pady=60)
-        self.weight = Weight(self.centerFrame)
-        self.weight.pack(side=LEFT, anchor=W, padx=10)
+#        self.weight = Weight(self.centerFrame)
+#        self.weight.pack(side=LEFT, anchor=W, padx=10)
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
