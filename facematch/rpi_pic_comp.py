@@ -119,10 +119,10 @@ while block == True:
                 path = path + '/test/pictures_faces/'
 
                 with picamera.PiCamera() as camera:
-                    camera.start_preview()
+#                    camera.start_preview()
                     time.sleep(0)
                     camera.capture(str(path) + "{0}.png".format(person_name))
-                    camera.stop_preview()
+#                    camera.stop_preview()
 
 #                path = path + '/test/pictures_faces/'
 #                cv2.imwrite(str(path) + "{0}.png".format(person_name), image)
