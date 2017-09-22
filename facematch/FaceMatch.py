@@ -69,7 +69,7 @@ class FaceMatch:
 
 
     def getName(self):
-        """  
+        """
         main function starts here
         """
         block = True
@@ -143,10 +143,10 @@ class FaceMatch:
                         path = path + '/test/pictures_faces/'
 
                         with picamera.PiCamera() as camera:
-                            camera.start_preview()
+#                            camera.start_preview()
                             time.sleep(0)
                             camera.capture(str(path) + "{0}.png".format(person_name))
-                            camera.stop_preview()
+#                            camera.stop_preview()
 
 #                path = path + '/test/pictures_faces/'
 #                cv2.imwrite(str(path) + "{0}.png".format(person_name), image)
@@ -166,7 +166,7 @@ class FaceMatch:
                 block = False
 
 	    name = name.rsplit( ".", 1 )[ 0 ]
-	    print "name is " + name 
+	    print "name is " + name
             return name
 
 

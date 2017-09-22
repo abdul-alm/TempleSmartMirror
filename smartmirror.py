@@ -12,12 +12,12 @@ import json
 import traceback
 import feedparser
 import serial
+import subprocess #checks if camera connected
 from time import sleep
 #from serial import SerialException
 from PIL import Image, ImageTk
 from contextlib import contextmanager
 from facematch.FaceMatch import FaceMatch
-
 from contextlib import contextmanager #check http://preshing.com/20110920/the-python-with-statement-by-example/
 
 LOCALE_LOCK = threading.Lock()
@@ -39,12 +39,23 @@ small_text_size = 18
 serial_speed = 9600
 serial_port = '/dev/rfcomm0'
 
-# Test with USB-Serial connection
-# serial_port = '/dev/tty.usbmodem1421'
+
+#####Bluetooth-Serial connection check
 try:
     ser = serial.Serial(serial_port, serial_speed, timeout=1)
 except serial.SerialException:
     print "No connection to the device could be established"
+
+#CAMERA CHECK#
+##############
+camera = subprocess.check_output(["vcgencmd","get_camera"])
+int(camdet.strip()[-1]) #gets only 0 or 1 from detected status
+if (camera):
+    print "Camera Detected"
+    print camera
+else:
+    print "not detected"
+    print camera
 
 #@contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -285,12 +296,13 @@ class FaceRec(Frame):
 	self.pack()
 	self.measure()
     def measure(self):
-
-        fm=FaceMatch("test")
-        name=fm.getName()
-	self.name.set("Hello " + name)
-	self.temperature.pack(side=LEFT, anchor=W)
-
+        if (camera==1):
+            fm=FaceMatch("test")
+            name=fm.getName()
+        else:
+            name=("camera not connected")
+	    self.name.set("Hello " + name)
+	    self.temperature.pack(side=LEFT, anchor=W)
 	# Create display elements
     def createWidgets(self):
 
@@ -384,11 +396,6 @@ class SplashScreen(Frame):
     	Button(sp, text="Press this button to kill the program", bg='red', command=root.destroy).pack(side=BOTTOM, fill=X)
 
 
-class TempList(Frame):
-
-    def __init__(self, parent, event_name="136 lbs"):
-        Frame.__init__(self, parent, bg='black')
-
 class FullscreenWindow:
 
     def __init__(self):
@@ -404,8 +411,6 @@ class FullscreenWindow:
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
 	# Name
-#        self.test = Test(self.topFrame)
-#        self.test.pack(side=TOP, anchor=W, padx=0, pady=0)
 #       Facial Recognition
         self.facerec = FaceRec(self.topFrame)
         self.facerec.pack(side=TOP, anchor=N, padx=0, pady=0)
@@ -421,6 +426,8 @@ class FullscreenWindow:
         # news
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=10, pady=60)
+        self.weight = Weight(self.centerFrame)
+        self.weight.pack(side=LEFT, anchor=W, padx=10)
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
