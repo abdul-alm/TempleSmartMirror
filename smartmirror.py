@@ -96,7 +96,7 @@ class Clock(Frame):
 #        print "test -->: " + ui_locale
       #  with setlocale('en_US.utf8'):
         if time_format == 12:
-            time2 = time.strftime('%I:%M %p') #hour in 12h format 
+            time2 = time.strftime('%I:%M %p') #hour in 12h format
         else:
             time2 = time.strftime('%H:%M') #hour in 24h format
         if 1:
@@ -316,9 +316,7 @@ class TempTest(Frame):
 	if (data != ""):
 	    processed_data = data.split(",")
 	    self.temp_data.set("Temperature: " + str(data))
-	    print(self.temp_data)
 	    self.temperature.pack(side=LEFT, anchor=W)
-	else: print("lollllllfuuuuuuuu")
 	# Wait 1 second between each measurement
 	self.after(1000,self.measure)
 #	print("1000 timer")
@@ -327,6 +325,34 @@ class TempTest(Frame):
         self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
 #	self.temp_data.set("temp")
 	self.temperature.pack(side=TOP, anchor=W)
+
+
+class Weight(Frame):
+    def __init__(self, parent, *args, **kwargs):
+	Frame.__init__(self, parent, *args, **kwargs)
+	self.weight_data = StringVar()
+	self.createWidgets()
+	self.pack()
+	self.measure()
+    def measure(self):
+
+		# Request data and read the answer
+        x = ser.write("m") #writes 1 not m
+	print(ser.write("m"))
+        data = ser.readline()
+		# If the answer is not empty, process & display data
+	if (data != ""):
+	    processed_data = data.split(",")
+	    self.weight_data.set("Weight: " + str(data))
+	    self.weight.pack(side=LEFT, anchor=W)
+	# Wait 1 second between each measurement
+	self.after(1000,self.measure)
+#	print("1000 timer")
+	# Create display elements
+    def createWidgets(self):
+        self.weight = Label(self, textvariable=self.weight_data, font=('Helvetica', small_text_size), fg="white", bg="black")
+#	self.temp_data.set("temp")
+	self.weight.pack(side=TOP, anchor=W)
 
 
 class SplashScreen(Frame):
