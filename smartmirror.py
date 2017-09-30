@@ -44,10 +44,11 @@ serial_port = '/dev/rfcomm0'
 send = 1
 try:
     ser = serial.Serial(serial_port, serial_speed, timeout=1)
+    print "Bluetooth Connected"
 except serial.SerialException:
-    print "No connection to the bluetooth device could be established"
-    ser = 0
-    send = 0
+     print "No connection to the bluetooth device could be established"
+     send=0
+    
 
 #CAMERA CHECK#
 ##############
@@ -55,7 +56,7 @@ camera = subprocess.check_output(["vcgencmd","get_camera"])
 #int(camera.strip()[-1]) #gets only 0 or 1 from detected status
 section = camera.split(" ")[1]
 detector = section.split("=")[-1]
-print detector
+#print detector
 if (int(detector)==1):
     print "Camera Detected"
     print camera
@@ -308,15 +309,16 @@ class FaceRec(Frame):
         else:
             name=("camera not connected")
 	self.name.set("Hello " + name)
-	self.temperature.pack(side=LEFT, anchor=W)
+	self.face.pack(side=LEFT, anchor=W)  #changed name from temperature.pack in case error
 	# Create display elements
     def createWidgets(self):
 
-        self.temperature = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
-	self.temperature.pack(side=TOP, anchor=W)
+        self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
+	self.face.pack(side=TOP, anchor=W)
 
 
 class TempTest(Frame):
+
     def __init__(self, parent, *args, **kwargs):
 	Frame.__init__(self, parent, *args, **kwargs)
 	self.temp_data = StringVar()
@@ -324,18 +326,21 @@ class TempTest(Frame):
 	self.createWidgets()
 	self.pack()
         if(int(send)==1):
-	   self.measure()
+	    self.measure()
+	    print "reading data"
     def measure(self):
 
 		# Request data and read the answer
-        x = ser.write("m")
-	print(ser.write("m"))
+        ser.write("t")
+	print("this is t")
         data = ser.readline()
+	print str(data)
 		# If the answer is not empty, process & display data
 	if (data != ""):
 	    processed_data = data.split(",")
 	    self.temp_data.set("Temperature: " + str(data))
 	    self.temperature.pack(side=LEFT, anchor=W)
+	#    print(data)
 	# Wait 1 second between each measurement
 	self.after(1000,self.measure)
 #	print("1000 timer")
@@ -346,32 +351,33 @@ class TempTest(Frame):
 	self.temperature.pack(side=TOP, anchor=W)
 
 
-class Weight(Frame):
-    def __init__(self, parent, *args, **kwargs):
-	Frame.__init__(self, parent, *args, **kwargs)
-	self.weight_data = StringVar()
-	self.createWidgets()
-	self.pack()
-	self.measure()
-    def measure(self):
+#class Weight(Frame):
+ #   def __init__(self, parent, *args, **kwargs):
+#	Frame.__init__(self, parent, *args, **kwargs)
+#	self.weight_data = StringVar()
+#	self.createWidgets()
+#	self.pack()
+#	self.measure()
+    #def measure(self):
 
 		# Request data and read the answer
-        x = ser.write("m") #writes 1 not m
-	print(ser.write("m"))
-        data = ser.readline()
+        #x = ser.write("m") #writes 1 not m
+	#print(ser.write("m"))
+        #data = ser.readline()
 		# If the answer is not empty, process & display data
-	if (data != ""):
-	    processed_data = data.split(",")
-	    self.weight_data.set("Weight: " + str(data))
-	    self.weight.pack(side=LEFT, anchor=W)
+	#if (data != ""):
+	#    processed_data = data.split(",")
+	#    self.weight_data.set("Weight: " + str(data))
+	#    self.weight.pack(side=LEFT, anchor=W)
+	#    print(data)
 	# Wait 1 second between each measurement
-	self.after(1000,self.measure)
+	#self.after(1000,self.measure)
 #	print("1000 timer")
 	# Create display elements
-    def createWidgets(self):
-        self.weight = Label(self, textvariable=self.weight_data, font=('Helvetica', small_text_size), fg="white", bg="black")
+    #def createWidgets(self):
+        #self.weight = Label(self, textvariable=self.weight_data, font=('Helvetica', small_text_size), fg="white", bg="black")
 #	self.temp_data.set("temp")
-	self.weight.pack(side=TOP, anchor=W)
+	#self.weight.pack(side=TOP, anchor=W)
 
 
 class SplashScreen(Frame):
@@ -419,8 +425,8 @@ class FullscreenWindow:
         self.tk.bind("<Escape>", self.end_fullscreen)
 	# Name
 #       Facial Recognition
-        self.facerec = FaceRec(self.topFrame)
-        self.facerec.pack(side=TOP, anchor=N, padx=0, pady=0)
+       # self.facerec = FaceRec(self.topFrame)
+       # self.facerec.pack(side=TOP, anchor=N, padx=0, pady=0)
         # clock
         self.clock = Clock(self.topFrame)
         self.clock.pack(side=RIGHT, anchor=N, padx=10, pady=60)
@@ -428,7 +434,7 @@ class FullscreenWindow:
         self.weather = Weather(self.topFrame)
         self.weather.pack(side=LEFT, anchor=N, padx=10, pady=60)
 	#temp
-	self.temp= TempTest(self.bottomFrame)
+	self.temp = TempTest(self.centerFrame)
 	self.temp.pack(side=TOP, anchor=N, padx=10)
         # news
         self.news = News(self.bottomFrame)
