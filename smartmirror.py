@@ -338,6 +338,15 @@ class TempTest(Frame):
 		# If the answer is not empty, process & display data
 	if (data != ""):
 	    processed_data = data.split(",")
+
+	    jsonData=json.dumps(data)
+#	    print(jsonData)
+	    info = json.load('JSONData.json')
+	    info.append((str(data))
+	    json.dump(info, sys.stdout, indent=2)
+	    with open('JSONData.json', 'w') as f:
+	        json.dump(info, f, indent=2)
+
 	    self.temp_data.set("Temperature: " + str(data))
 	    self.temperature.pack(side=LEFT, anchor=W)
 	#    print(data)
