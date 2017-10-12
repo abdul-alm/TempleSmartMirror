@@ -48,7 +48,7 @@ try:
 except serial.SerialException:
      print "No connection to the bluetooth device could be established"
      send=0
-    
+
 
 #CAMERA CHECK#
 ##############
