@@ -63,10 +63,7 @@ if (int(detector)==1):
 else:
     print "Camera not detected"
     print camera
-global library
-library = {'People': [{'name': ID, 'weight':weight}]}
-ID = StringVar()
-weight = IntVar()
+
 #@contextmanager
 def setlocale(name): #thread proof function to work with locale
     print "locale " + name
@@ -94,6 +91,99 @@ icon_lookup = {
     'tornado': "assests/Tornado.png",    # tornado
     'hail': "assests/Hail.png"  # hail
 }
+
+
+class FaceRec(Frame):
+    def __init__(self, parent, *args, **kwargs):
+	Frame.__init__(self, parent, *args, **kwargs)
+	self.name = StringVar()
+	#self.createWidgets()
+	#self.pack()
+	self.measure()
+    def measure(self, name):
+        if (int(detector)==1):
+            fm=FaceMatch("test")
+            name=fm.getName()
+        else:
+            name=("camera not connected")
+	self.name.set("Hello " + name)
+    return self.name
+	self.face.pack(side=LEFT, anchor=W)  #changed name from temperature.pack in case error
+    self.app = TempTest(name)
+	# Create display elements
+    def createWidgets(self):
+
+    self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
+    self.face.pack(side=TOP, anchor=W)
+
+
+class TempTest(Frame):
+
+    def __init__(self, parent, FaceRec, storeData,  *args, **kwargs):
+	Frame.__init__(self, parent,  *args, **kwargs)
+	self.temp_data = StringVar()
+    self.name = stringVar()
+	self.createWidgets()
+	self.pack()
+    if(int(send)==1):   #if bluetooth connected
+	    self.measure()
+        self.name = faceRec.measure()
+	    print "reading data"
+    if (self.name !="" and self.temp_data !="")
+        try:
+            self.record()
+        except Exception as e:
+            traceback.print_exc()
+            print "Error: %s. Cannot store data." % e
+
+
+    def measure(self):
+
+		# Request data and read the answer
+        ser.write("t")
+        print("this is t")
+        data = ser.readline()
+        print str(data)
+		# If the answer is not empty, process & display data
+        if (data != ""):
+            processed_data = data.split(",")
+	    self.temp_data.set("Temperature: " + str(data))
+        self.face.pack(side=LEFT, anchor=W)
+	    self.temperature.pack(side=LEFT, anchor=W)
+	# Wait 1 second between each measurement
+	#self.after(1000,self.measure)
+	# Create display elements
+    def record(self, storeData):
+        storeData.write(self.name, self.temp_data)
+
+    def createWidgets(self):
+        self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.face.pack(side=TOP, anchor=W)
+        self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
+        self.temperature.pack(side=TOP, anchor=W)
+
+
+class storeData(Frame):
+    def __init__(self, parent, name,  *args, **kwargs):
+	Frame.__init__(self, parent,  *args, **kwargs)
+    data = {'People': [{'name': ID, 'weight':[weight]}]}
+    self.write()
+    def write(self):
+        with open('data.json') as outfile_r:
+            try:
+                source_data = json.load(outfile_r)
+                new_name = True
+                for ppl in source_data['People']:
+                    if ppl['name']==ID:
+                        ppl['weight'].append(weight)
+                        new_name = False
+                if new_name:
+                    source_data['People'].append({'name': ID, 'weight':[weight]})
+                storage = source_data
+            except:
+                storage = data
+        with open('data.json','w') as outfile_w:
+            json.dump(storage, outfile_w, sort_keys=True, indent=4)
 
 
 class Clock(Frame):
@@ -296,66 +386,6 @@ class NewsHeadline(Frame):
         self.eventName = event_name
         self.eventNameLbl = Label(self, text=self.eventName, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.eventNameLbl.pack(side=LEFT, anchor=N)
-
-class FaceRec(Frame):
-    def __init__(self, parent, *args, **kwargs):
-	Frame.__init__(self, parent, *args, **kwargs)
-	self.name = StringVar()
-	self.hum_data = StringVar()
-	self.createWidgets()
-	self.pack()
-	self.measure()
-    def measure(self, name):
-        if (int(detector)==1):
-            fm=FaceMatch("test")
-            name=fm.getName()
-        else:
-            name=("camera not connected")
-	self.name.set("Hello " + name)
-	self.face.pack(side=LEFT, anchor=W)  #changed name from temperature.pack in case error
-       # self.app = TempTest(self.measure, name)
-	# Create display elements
-    def createWidgets(self):
-
-        self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
-	self.face.pack(side=TOP, anchor=W)
-
-
-class TempTest(Frame):
-
-    def __init__(self, parent,  *args, **kwargs):
-	Frame.__init__(self, parent,  *args, **kwargs)
-	self.temp_data = StringVar()
-        #self.name = name
-	self.createWidgets()
-	self.pack()
-        if(int(send)==1):
-	    self.measure()
-	    print "reading data"
-    def measure(self):
-
-		# Request data and read the answer
-        
-        ser.write("t")
-	print("this is t")
-        data = ser.readline()
-	print str(data)
-		# If the answer is not empty, process & display data
-	if (data != ""):
-	    processed_data = data.split(",")
-
-
-	    self.temp_data.set("Temperature: " + str(data))
-	    self.temperature.pack(side=LEFT, anchor=W)
-	#    print(data)
-	# Wait 1 second between each measurement
-	self.after(1000,self.measure)
-#	print("1000 timer")
-	# Create display elements
-    def createWidgets(self):
-        self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
-#	self.temp_data.set("temp")
-	self.temperature.pack(side=TOP, anchor=W)
 
 
 class SplashScreen(Frame):
