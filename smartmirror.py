@@ -96,29 +96,14 @@ icon_lookup = {
 
 class FaceRec:
 
-    #def __init__(self):
-	#Frame.__init__(self, parent, *args, **kwargs)
-        #self.name = StringVar()
-	#self.createWidgets()
-	#self.pack()
-	#self.find()
     def find(self):
 	print detector
         if (int(detector)==1):
             fm=FaceMatch(camera_folder)
-	  #  print 'hello ' + self.name 
             name=fm.getName()
         else:
             name=("camera not connected")
-	    self.name.set("Hello " + name)
-#	self.face.pack(side=LEFT, anchor=W)  
         return name
-	# Create display elements
-#    def createWidgets(self):
-
-      #  self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
-      #  self.face.pack(side=TOP, anchor=W)
-
 
 
 class TempTest(Frame):
@@ -126,28 +111,13 @@ class TempTest(Frame):
     def __init__(self, parent,  *args, **kwargs):
 	Frame.__init__(self, parent, *args, **kwargs)
         self.temp_data = StringVar()
-        self.called = StringVar()
+        self.name = StringVar()
+        if(int(send)==1):   #if bluetooth connected
+	        self.measure()
+	        print "reading data"
+        self.Person
         self.createWidgets()
-	self.pack()
-#       self.called = names
-        #try:
-        pt=FaceRec();
-        #self.called = FaceRec.find(FaceRec)  #calls fuction from FaceRec
-        print pt.find()
-#	print("name is " + str(self.called))
-        #except:
-        #    self.called = "no name"
-    if(int(send)==1):   #if bluetooth connected
-	    self.measure()
-	    print "reading data"
-    #if self.name !="":
-   # try:
-   #     storeData.record(self.name, self.temp_data) #calls function record from storeData
-   # except Exception as e:
-   #     traceback.print_exc()
-   #     print "Error: %s. Cannot store data." % e
-
-
+        self.pack()
     def measure(self):
 
 		# Request data and read the answer
@@ -159,17 +129,21 @@ class TempTest(Frame):
         if (data != ""):
             processed_data = data.split(",")
 	    self.temp_data.set("Temperature: " + str(data))
-            self.face.pack(side=LEFT, anchor=W)
 	    self.temperature.pack(side=LEFT, anchor=W)
-	# Wait 1 second between each measurement
-	#self.after(1000,self.measure)
-	# Create display elements
- #   def record(self, storeData):
- #       storeData.write(self.name, self.temp_data)
+
+    def Person(self)
+        try:
+            pt=FaceRec();
+            name = pt.find  #calls fuction from FaceRec
+            print ("name is " + self.name)
+        except:
+            name = "Person not found"
+            self.name.set("Hello, " + name)
+            self.name.pack(side=LEFT, anchor=W)
 
     def createWidgets(self):
-        self.face = Label(self, textvariable=self.temp_data, font=('Helvetica', medium_text_size), fg="white", bg="black")
-        self.face.pack(side=TOP, anchor=W)
+        self.name = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.name.pack(side=TOP, anchor=W)
         self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.temperature.pack(side=TOP, anchor=W)
 
@@ -375,36 +349,6 @@ class NewsHeadline(Frame):
         self.eventNameLbl = Label(self, text=self.eventName, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.eventNameLbl.pack(side=LEFT, anchor=N)
 
-
-class SplashScreen(Frame):
-    def __init__(self, parent, *args, **kwargs):
-        Frame.__init__(self, parent, *args, **kwargs)
-	self.createWidget()
-        self.pack(side=TOP, fill=BOTH, expand=YES)
-
-        # get screen width and height
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
-        w = (useFactor and ws*width) or width
-        h = (useFactor and ws*height) or height
-        # calculate position x, y
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
-
-        self.master.overrideredirect(True)
-        self.lift()
-    def createWidget(self):
-
-	sp.config(bg="#3366ff")
-
-    	m = Label(sp, text="This is a test of the splash screen\n\n\nThis is only a test.\nwww.sunjay-varma.com")
-    	m.pack(side=TOP, expand=YES)
-    	m.config(bg="#3366ff", justify=CENTER, font=("calibri", 29))
-
-    	Button(sp, text="Press this button to kill the program", bg='red', command=root.destroy).pack(side=BOTTOM, fill=X)
-
-
 class FullscreenWindow:
 
     def __init__(self):
@@ -449,22 +393,6 @@ class FullscreenWindow:
         return "break"
 
 if __name__ == '__main__':
-    #w = FullscreenWindow()
 
-#new code
-#    root = Tk()
-
-#    sp = SplashScreen(root)
-#    sp.config(bg="#3366ff")
-
-#    m = Label(sp, text="This is a test of the splash screen\n\n\nThis is only a test.\nwww.sunjay-varma.com")
-#    m.pack(side=TOP, expand=YES)
-#    m.config(bg="#3366ff", justify=CENTER, font=("calibri", 29))
-
-#    Button(sp, text="Press this button to kill the program", bg='red', command=root.destroy).pack(side=BOTTOM, fill=X)
-
-
-
-#end new code
     w = FullscreenWindow()
     w.tk.mainloop()
