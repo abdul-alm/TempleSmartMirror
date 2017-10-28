@@ -38,7 +38,6 @@ small_text_size = 18
 #Serial port parameters
 serial_speed = 9600
 serial_port = '/dev/rfcomm0'
-camera_folder = '/home/pi/Smart-Mirror/test/pictures_faces'
 
 
 #####Bluetooth-Serial connection check
@@ -57,7 +56,7 @@ camera = subprocess.check_output(["vcgencmd","get_camera"])
 #int(camera.strip()[-1]) #gets only 0 or 1 from detected status
 section = camera.split(" ")[1]
 detector = section.split("=")[-1]
-print detector
+#print detector
 if (int(detector)==1):
     print "Camera Detected"
     print camera
@@ -94,31 +93,27 @@ icon_lookup = {
 }
 
 
-class FaceRec:
-
-    #def __init__(self):
-	#Frame.__init__(self, parent, *args, **kwargs)
-        #self.name = StringVar()
-	#self.createWidgets()
-	#self.pack()
-	#self.find()
+class FaceRec(Frame):
+    def __init__(self, parent, *args, **kwargs):
+#	Frame.__init__(self, parent, *args, **kwargs)
+        self.name = StringVar()
+#	self.createWidgets()
+#	self.pack()
+	self.find()
     def find(self):
-	print detector
         if (int(detector)==1):
-            fm=FaceMatch(camera_folder)
-	  #  print 'hello ' + self.name 
+            fm=FaceMatch("test")
             name=fm.getName()
         else:
             name=("camera not connected")
 	    self.name.set("Hello " + name)
-#	self.face.pack(side=LEFT, anchor=W)  
-        return name
+	self.face.pack(side=LEFT, anchor=W)  
+#        return name
 	# Create display elements
-#    def createWidgets(self):
+    def createWidgets(self):
 
-      #  self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
-      #  self.face.pack(side=TOP, anchor=W)
-
+        self.face = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.face.pack(side=TOP, anchor=W)
 
 
 class TempTest(Frame):
@@ -126,15 +121,16 @@ class TempTest(Frame):
     def __init__(self, parent,  *args, **kwargs):
 	Frame.__init__(self, parent, *args, **kwargs)
         self.temp_data = StringVar()
-        self.called = StringVar()
+        called = StringVar()
         self.createWidgets()
-	self.pack()
+        of = FaceRec(Frame)
+#	self.pack()
 #       self.called = names
         #try:
-        pt=FaceRec();
-        #self.called = FaceRec.find(FaceRec)  #calls fuction from FaceRec
-        print pt.find()
-#	print("name is " + str(self.called))
+#        of = FaceRec(Frame)
+#        of.find()
+#        called = FaceRec.find(self)  #calls fuction from FaceRe 	of.find()
+#o        print("name is " + of.find())
         #except:
         #    self.called = "no name"
     if(int(send)==1):   #if bluetooth connected
@@ -172,6 +168,33 @@ class TempTest(Frame):
         self.face.pack(side=TOP, anchor=W)
         self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.temperature.pack(side=TOP, anchor=W)
+
+
+#class storeData(Frame):
+#    def __init__(self, parent, name,  weight, *args, **kwargs):
+#	Frame.__init__(self, parent,  *args, **kwargs)
+#    ID = StringVar()
+#    Weight = IntVar()
+#    data = {'People': [{'name': ID, 'weight':[weight]}]}
+#    ID = name
+#    weight = weight
+#    #self.write()
+#    def write(self):
+#        with open('data.json') as outfile_r:
+#            try:
+#                source_data = json.load(outfile_r)
+#                new_name = True
+#                for ppl in source_data['People']:
+#                    if ppl['name']==ID:
+#                        ppl['weight'].append(weight)
+#                        new_name = False
+#                if new_name:
+#                    source_data['People'].append({'name': ID, 'weight':[weight]})
+#                storage = source_data
+#            except:
+#                storage = data
+#        with open('data.json','w') as outfile_w:
+#            json.dump(storage, outfile_w, sort_keys=True, indent=4)
 
 
 class Clock(Frame):

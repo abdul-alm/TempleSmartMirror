@@ -29,6 +29,7 @@ class FaceMatch:
         subdirectories represnt class names
         """
         root_dir = dataset_dir_raw
+ #       root_dir = self.sys
         directories = []
         classNames = []
         for filename in os.listdir(root_dir):
