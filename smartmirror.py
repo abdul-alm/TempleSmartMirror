@@ -17,7 +17,10 @@ from time import sleep
 #from serial import SerialException
 from PIL import Image, ImageTk
 from contextlib import contextmanager
-from facematch.FaceMatch import FaceMatch
+#classes stored in utilites below
+from utilities.userData.data import Data
+from utilities.facematch.FaceMatch import FaceMatch
+from utilities.septa import Septa
 from contextlib import contextmanager #check http://preshing.com/20110920/the-python-with-statement-by-example/
 from serial import SerialException
 LOCALE_LOCK = threading.Lock()
@@ -39,9 +42,20 @@ small_text_size = 18
 serial_speed = 9600
 serial_port = '/dev/rfcomm0'
 camera_folder = '/home/pi/Smart-Mirror/test/pictures_faces'
+#setpa
+############
+#Septa API website
+#http://www3.septa.org/hackathon/
+septa_API = "http://www3.septa.org/hackathon/Arrivals"
+stationID = 90815
+numTrains = 5 #number of scheduled results
+parameters = {"req1": stationID, "req2": numTrains} #req1 = Septa train station code / req2 number of results
+direction = 1 # 0 for north / 1 for south
+traintime = 1 # temp, used to parse out train schedules from numTrains (can only go up to numTrains)
 
 
-#####Bluetooth-Serial connection check
+#Bluetooth-Serial connection check#
+#############
 send = 1
 try:
     ser = serial.Serial(serial_port, serial_speed, timeout=1)
@@ -49,7 +63,7 @@ try:
 except serial.SerialException:
      print "No connection to the bluetooth device could be established"
      send=0
-
+##############
 
 #CAMERA CHECK#
 ##############
@@ -64,6 +78,8 @@ if (int(detector)==1):
 else:
     print "Camera not detected"
     print camera
+##############
+
 
 #@contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -112,12 +128,13 @@ class TempTest(Frame):
 	Frame.__init__(self, parent, *args, **kwargs)
         self.temp_data = StringVar()
         self.name = StringVar()
+        self.weight = IntVar()
         if(int(send)==1):   #if bluetooth connected
-	        self.measure()
-	        print "reading data"
-        self.Person
+	    self.measure()
+	    print "reading data"
+        self.Person()
+        self.StoreData()
         self.createWidgets()
-        self.pack()
     def measure(self):
 
 		# Request data and read the answer
@@ -129,23 +146,76 @@ class TempTest(Frame):
         if (data != ""):
             processed_data = data.split(",")
 	    self.temp_data.set("Temperature: " + str(data))
-	    self.temperature.pack(side=LEFT, anchor=W)
+#	    self.temperature.pack(side=LEFT, anchor=W)
 
-    def Person(self)
+    def Person(self):
         try:
-            pt=FaceRec();
-            name = pt.find  #calls fuction from FaceRec
-            print ("name is " + self.name)
+            pt=FaceRec()
+            name = pt.find()  #calls fuction from FaceRec
+            print ("name is " + name)
         except:
             name = "Person not found"
-            self.name.set("Hello, " + name)
-            self.name.pack(side=LEFT, anchor=W)
+
+        self.name.set("Hello, " + name)
+
+    def StoreData(self):
+	try:
+            store=Data()
+            store.storeData(self.name, self.weight)
+        except:
+            print("data not stored")
 
     def createWidgets(self):
         self.name = Label(self, textvariable=self.name, font=('Helvetica', medium_text_size), fg="white", bg="black")
         self.name.pack(side=TOP, anchor=W)
-        self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
-        self.temperature.pack(side=TOP, anchor=W)
+       # self.temperature = Label(self, textvariable=self.temp_data, font=('Helvetica', small_text_size), fg="white", bg="black")
+       # self.temperature.pack(side=TOP, anchor=E)
+
+class Trains(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, bg="black")
+        
+        self.septaFrm = Frame(self, bg="black")
+        self.septaFrm.pack(side=TOP, anchor = W)
+        self.train1Lbl = Label(self, font=('Helvetica', small_text_size), justify = LEFT, fg="white", bg="black")
+        self.train1Lbl.pack(side=TOP, anchor=E)
+        self.train2Lbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
+        self.train2Lbl.pack(side=TOP, anchor=W)
+        self.getTimes()
+        
+    def getTimes(self):
+      
+        if (direction ==1):
+            direc = "Southbound"
+        else:
+            direc = "Northbound"
+
+        x = Septa()
+        y = x.traintimes(septa_API, parameters, direction, traintime)
+        z = x.traintimes(septa_API, parameters, direction, 2)
+
+        trainline = ("Line: " +y[7])
+        destination = ("Destination: " +y[3])
+        depart = ("Departure: " + y[1][11:16])
+        status = ("Status: " + z[21])
+        filtered = [direc, trainline, destination, depart, status]
+        filtered = "\n".join(filtered)
+        print(filtered) 
+        self.train1Lbl.config(text=(filtered))
+#        self.train1Lbl.config(text=destination1)
+        #self.train1Lbl.config(text=)
+        #self.train1Lbl.config(text=filtered[3])
+        trainline2 = z[7]
+        destination2 = z[3]
+        depart2 = z[1][11:16]
+        status2 = z[21]
+        filtered2 = (trainline2, destination2, depart2, status2)
+        #self.train2Lbl.config(text=filtered[0])
+        #self.train2Lbl.config(text=filtered[1])
+        #self.train2Lbl.config(text=filtered[2])
+        #self.train2Lbl.config(text=filtered[3])
+
+
 
 
 class Clock(Frame):
@@ -364,23 +434,21 @@ class FullscreenWindow:
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
 	# Name
-#       Facial Recognition
-       # self.facerec = FaceRec(self.topFrame)
-       # self.facerec.pack(side=TOP, anchor=N, padx=0, pady=0)
         # clock
         self.clock = Clock(self.topFrame)
-        self.clock.pack(side=RIGHT, anchor=N, padx=10, pady=60)
+        self.clock.pack(side=RIGHT, anchor=N, padx=10, pady=10)
         # weather
         self.weather = Weather(self.topFrame)
-        self.weather.pack(side=LEFT, anchor=N, padx=10, pady=60)
+        self.weather.pack(side=LEFT, anchor=N, padx=10, pady=10)
 	#temp
-	self.temp = TempTest(self.centerFrame)
-	self.temp.pack(side=TOP, anchor=N, padx=10)
+#	self.temp = TempTest(self.centerFrame)
+#	self.temp.pack(side=LEFT, anchor=W, padx=10)
+        #setpa
+        self.septa = Trains(self.centerFrame)
+        self.septa.pack(side=LEFT, anchor=N, padx=10)
         # news
         self.news = News(self.bottomFrame)
-        self.news.pack(side=LEFT, anchor=S, padx=10, pady=60)
-       # self.weight = Weight(self.centerFrame)
-       # self.weight.pack(side=LEFT, anchor=W, padx=10)
+        self.news.pack(side=LEFT, anchor=S, padx=10, pady=10)
 
     def toggle_fullscreen(self, event=None):
         self.state = not self.state  # Just toggling the boolean
